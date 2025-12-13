@@ -24,7 +24,7 @@ A configurable, plug-and-play autocrafting / stockpiling system.
 Grab [`gitget`](http://www.computercraft.info/forums2/index.php?/topic/17387-gitget-version-2-release/)
 
 ```sh
-pastebin get W5ZkVYSi gitget
+pastebin get pMRU9wr4 gitget
 ```
 
 Grab `meautocraft`. Watch out, this will *overwrite* your `startup` file!
