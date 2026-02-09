@@ -207,7 +207,7 @@ local function check_all(craftables)
 end
 
 local function main()
-    print("Starting up...")
+    print("Starting up (custom build)...")
     mon.clear()
     mon.setTextColor(colors.white)
     mon.setCursorPos(1, 1)
