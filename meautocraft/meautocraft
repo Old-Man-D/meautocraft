@@ -52,7 +52,7 @@ end
 
 ---@return number
 function RichItem:have_amount()
-    return field(self.craftable.item, "amount", "number")
+    return field(self.craftable.item, "count", "number")
 end
 
 
