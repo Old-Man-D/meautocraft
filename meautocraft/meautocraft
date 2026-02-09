@@ -52,13 +52,7 @@ end
 
 ---@return number
 function RichItem:have_amount()
-    local item = self.craftable.item
-    if not item or item.amount == nil then
-        printError("Missing amount for " .. tostring(self:name()) ..
-                   " display=" .. tostring(self:display_name()))
-        return 0
-    end
-    return item.amount
+    return field(self.craftable.item, "amount", "number")
 end
 
 
