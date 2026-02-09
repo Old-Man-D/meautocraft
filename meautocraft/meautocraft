@@ -52,10 +52,8 @@ end
 
 ---@return number
 function RichItem:have_amount()
-    return field(self.craftable.item, "count", "number")
+    return field(self.craftable.item, "amount", "number")
 end
-
-
 
 function RichItem:want_amount()
     return self._want_amount
@@ -209,7 +207,7 @@ local function check_all(craftables)
 end
 
 local function main()
-    print("Starting up (custom build)...")
+    print("Starting up...")
     mon.clear()
     mon.setTextColor(colors.white)
     mon.setCursorPos(1, 1)
