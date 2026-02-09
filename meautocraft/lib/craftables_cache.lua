@@ -20,6 +20,19 @@ function Craftable:new(params)
     return o
 end
 
+local function normalize_amount(raw)
+    -- AP ≤ 0.7.45 used `amount`
+    -- AP ≥ 0.7.46 uses `count`
+    if type(raw.amount) ~= "number" then
+        if type(raw.count) == "number" then
+            raw.amount = raw.count
+        else
+            raw.amount = 0
+        end
+    end
+end
+
+
 ---@return string
 function Craftable:name()
     return field(self.item, "name", "string")
@@ -61,22 +74,33 @@ end
 ---@return { [string]: Craftable }
 local function update(me_bridge)
     local data = {}
+
     for _, raw in ipairs(me_bridge.listCraftableItems() or {}) do
-        raw.amount = raw.count
-        data[field(raw, "name", "string")] = Craftable:new { item = raw, is_fluid = false }
+        normalize_amount(raw)
+        data[field(raw, "name", "string")] = Craftable:new {
+            item = raw,
+            is_fluid = false
+        }
     end
+
     for _, raw in ipairs(me_bridge.listCraftableFluid() or {}) do
-        data[field(raw, "name", "string")] = Craftable:new { item = raw, is_fluid = true }
+        normalize_amount(raw)
+        data[field(raw, "name", "string")] = Craftable:new {
+            item = raw,
+            is_fluid = true
+        }
     end
 
     local path = SETTINGS.craftables_cache_path()
     local content = textutils.serialize(data, { allow_repetitions = true })
     if not ioutils.write_file(path, content) then
         ioutils.panic("Failed to write craftables cache to " .. path)
-        return {} -- Never reached, just here to satisfy type checker (we don't have a `never` return type)
+        return {}
     end
+
     return data
 end
+
 
 ---@return { [string]: Craftable } | nil
 local function get(me_bridge)

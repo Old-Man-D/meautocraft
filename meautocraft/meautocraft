@@ -52,8 +52,13 @@ end
 
 ---@return number
 function RichItem:have_amount()
-    return field(self.craftable.item, "amount", "number")
+    local it = self.craftable.item or {}
+    local v = it.amount
+    if type(v) ~= "number" then v = it.count end
+    if type(v) ~= "number" then v = 0 end
+    return v
 end
+
 
 function RichItem:want_amount()
     return self._want_amount
