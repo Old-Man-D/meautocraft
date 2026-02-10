@@ -40,16 +40,33 @@ end
 
 ---@return string
 function Craftable:display_name()
-
-    local display_name =  self.item.displayName or self:name()
-    -- if display name is starting with "   [" and ends with "]" then remove it
-    if display_name:startswith("   [") and display_name:endswith("]") then
-        display_name = string.sub(display_name, 5, -2)
+    local dn = self.item.displayName
+    if type(dn) == "string" and dn ~= "" then
+        -- Some sources include bracket prefixes; keep your cleanup
+        if dn:startswith("   [") and dn:endswith("]") then
+            dn = string.sub(dn, 5, -2)
+        end
+        return dn
     end
-    return display_name
 
-    -- return self.item.displayName or self:name()
+    -- Fallback: prettify internal keys like "material.gtceu.vibrant_alloy_plate"
+    local key = self:name()
+
+    -- Keep only the last segment after '.' (so material.gtceu.vibrant_alloy_plate -> vibrant_alloy_plate)
+    local pretty = key:gsub("^.*%.", "")
+
+    -- Replace underscores with spaces
+    pretty = pretty:gsub("_", " ")
+
+    -- Title-case each word
+    pretty = pretty:gsub("(%a)([%w']*)", function(a, b)
+        return string.upper(a) .. b
+    end)
+
+    return pretty
 end
+
+
 
 ---@return { [string]: Craftable}
 local function load()
