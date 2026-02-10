@@ -85,20 +85,23 @@ function RichItem:color()
 end
 
 function RichItem:_format_amount(amount)
-    -- Fluids: keep bucket-style formatting
     if self:is_fluid() then
         return string.format("%.1f", amount / 1000)
     end
 
-    -- Items: compact formatting
-    if amount >= 1_000_000 then
-        return string.format("%.1fm", amount / 1_000_000)
-    elseif amount >= 1_000 then
-        return string.format("%.1fk", amount / 1_000)
+    local function strip0(s)
+        return (s:gsub("%.0([km])$", "%1"))
+    end
+
+    if amount >= 1000000 then
+        return strip0(string.format("%.1fm", amount / 1000000))
+    elseif amount >= 1000 then
+        return strip0(string.format("%.1fk", amount / 1000))
     else
         return string.format("%d", amount)
     end
 end
+
 
 
 function RichItem:format_have_amount()
