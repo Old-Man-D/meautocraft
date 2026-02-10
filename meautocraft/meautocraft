@@ -85,12 +85,21 @@ function RichItem:color()
 end
 
 function RichItem:_format_amount(amount)
+    -- Fluids: keep bucket-style formatting
     if self:is_fluid() then
         return string.format("%.1f", amount / 1000)
+    end
+
+    -- Items: compact formatting
+    if amount >= 1_000_000 then
+        return string.format("%.1fm", amount / 1_000_000)
+    elseif amount >= 1_000 then
+        return string.format("%.1fk", amount / 1_000)
     else
         return string.format("%d", amount)
     end
 end
+
 
 function RichItem:format_have_amount()
     return self:_format_amount(self:have_amount())
@@ -128,33 +137,29 @@ local function display_items(items)
         printError("No monitor found")
         return
     end
+
     local mon_width, _ = mon.getSize()
 
     table.sort(items, function(a, b) return a:display_name() < b:display_name() end)
     table.sort(items, function(a, b) return a:status() < b:status() end)
 
-    local max_want_width = 0
-    for _, item in ipairs(items) do
-        local want_width = string.len(item:format_want_amount())
-        if want_width > max_want_width then
-            max_want_width = want_width
-        end
-    end
-
-    local slash_col = mon_width - max_want_width
-
     mon.clear()
+
     for row, item in ipairs(items) do
+        -- Item name (left)
         mon.setCursorPos(1, row)
         mon.setTextColor(colors.white)
         mon.write(item:display_name())
 
+        -- Quantity (right-justified)
         mon.setTextColor(item:color())
-        local have_amount = item:format_have_amount()
-        mon.setCursorPos(slash_col - string.len(have_amount), row)
-        mon.write(have_amount .. "/" .. item:format_want_amount())
+        local qty_str = item:format_have_amount() .. "/" .. item:format_want_amount()
+        local x = mon_width - string.len(qty_str) + 1
+        mon.setCursorPos(x, row)
+        mon.write(qty_str)
     end
 end
+
 
 ---@param craftable Craftable
 ---@param want_amount number
