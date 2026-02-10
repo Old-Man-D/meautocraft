@@ -16,6 +16,9 @@ if not mon then
     return
 end
 
+mon.setTextScale(0.5)
+
+
 ---@param str string
 ---@param start string
 ---@return boolean
