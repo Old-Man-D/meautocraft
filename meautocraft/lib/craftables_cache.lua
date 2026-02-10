@@ -41,29 +41,39 @@ end
 ---@return string
 function Craftable:display_name()
     local dn = self.item.displayName
+
+    -- Use displayName only if it looks human (has spaces, etc.)
+    -- If it's a translation key / internal id like "material.gtceu.vibrant_alloy_plate",
+    -- treat it as "not a real display name" and prettify.
     if type(dn) == "string" and dn ~= "" then
-        -- Some sources include bracket prefixes; keep your cleanup
-        if dn:startswith("   [") and dn:endswith("]") then
-            dn = string.sub(dn, 5, -2)
+        local looks_like_key =
+            (dn:find(" ") == nil) and (dn:find("%.") ~= nil or dn:find(":") ~= nil or dn:find("_") ~= nil)
+
+        if not looks_like_key then
+            if dn:startswith("   [") and dn:endswith("]") then
+                dn = string.sub(dn, 5, -2)
+            end
+            return dn
         end
-        return dn
     end
 
-    -- Fallback: prettify internal keys like "material.gtceu.vibrant_alloy_plate"
+    -- Fallback: prettify internal names/keys
     local key = self:name()
+    if type(dn) == "string" and dn ~= "" then
+        key = dn -- if displayName exists but is a key, prettify that instead
+    end
 
-    -- Keep only the last segment after '.' (so material.gtceu.vibrant_alloy_plate -> vibrant_alloy_plate)
-    local pretty = key:gsub("^.*%.", "")
+    -- Strip namespace-ish prefixes:
+    key = key:gsub("^[%w_]+:", "")   -- remove "modid:"
+    key = key:gsub("^.*%.", "")      -- keep only after last '.' (material.gtceu.x -> x)
 
-    -- Replace underscores with spaces
-    pretty = pretty:gsub("_", " ")
-
-    -- Title-case each word
-    pretty = pretty:gsub("(%a)([%w']*)", function(a, b)
+    -- Make it readable
+    key = key:gsub("_", " ")
+    key = key:gsub("(%a)([%w']*)", function(a, b)
         return string.upper(a) .. b
     end)
 
-    return pretty
+    return key
 end
 
 
