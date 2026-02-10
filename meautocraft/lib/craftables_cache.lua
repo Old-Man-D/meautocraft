@@ -42,39 +42,38 @@ end
 function Craftable:display_name()
     local dn = self.item.displayName
 
-    -- Use displayName only if it looks human (has spaces, etc.)
-    -- If it's a translation key / internal id like "material.gtceu.vibrant_alloy_plate",
-    -- treat it as "not a real display name" and prettify.
     if type(dn) == "string" and dn ~= "" then
-        local looks_like_key =
-            (dn:find(" ") == nil) and (dn:find("%.") ~= nil or dn:find(":") ~= nil or dn:find("_") ~= nil)
+        -- strip the weird GTCEu prefix if present
+        dn = dn:gsub("^material%.gtceu%.", "")
 
-        if not looks_like_key then
-            if dn:startswith("   [") and dn:endswith("]") then
-                dn = string.sub(dn, 5, -2)
-            end
-            return dn
+        -- turn energetic_alloy -> Energetic Alloy
+        dn = dn:gsub("_", " ")
+
+        -- Title-case words
+        dn = dn:gsub("(%a)([%w']*)", function(a, b)
+            return a:upper() .. b
+        end)
+
+        -- Keep your bracket cleanup (optional; harmless)
+        if dn:startswith("   [") and dn:endswith("]") then
+            dn = string.sub(dn, 5, -2)
         end
+
+        return dn
     end
 
-    -- Fallback: prettify internal names/keys
+    -- fallback if displayName missing
     local key = self:name()
-    if type(dn) == "string" and dn ~= "" then
-        key = dn -- if displayName exists but is a key, prettify that instead
-    end
-
-    -- Strip namespace-ish prefixes:
-    key = key:gsub("^[%w_]+:", "")   -- remove "modid:"
-    key = key:gsub("^.*%.", "")      -- keep only after last '.' (material.gtceu.x -> x)
-
-    -- Make it readable
+    key = key:gsub("^material%.gtceu%.", "")
+    key = key:gsub("^[%w_]+:", "")
     key = key:gsub("_", " ")
     key = key:gsub("(%a)([%w']*)", function(a, b)
-        return string.upper(a) .. b
+        return a:upper() .. b
     end)
-
     return key
 end
+
+
 
 
 
